@@ -25,7 +25,7 @@
 * {
   all: unset;
   color: var(--foreground);
-  font-size: unset;
+  font-size: 12px;
   font-family: unset;
   border-radius: 16px;
 }
@@ -37,7 +37,8 @@
 #metrics,
 #pin-cell-box,
 #kanban-header {
-  background-color: alpha(black, 0.5);
+  background-color: var(--background);
+  box-shadow: none;
 }
 
 #update-window {

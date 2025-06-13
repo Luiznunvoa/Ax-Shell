@@ -3,6 +3,7 @@
   margin: 8px;
   opacity: 1;
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: none;
 }
 
 #bar-inner.dense,
@@ -10,18 +11,24 @@
 #bar-inner.edge.vertical,
 #bar-inner.edgecenter.vertical {
   padding: 4px;
-  background-color: var(--shadow);
+  background-color: var(--surface);
   border-style: solid;
   border-color: var(--surface);
+  box-shadow: none;
 }
 
 #bar-inner.dense {
   border-width: 2px;
+  box-shadow: none;
+  background-color: var(--surface);
 }
 
 #bar-inner.edge {
   border-width: 0 0 2px 0;
   border-radius: 0;
+  box-shadow: none;
+  background-color: var(--surface);
+
 }
 
 /* #bar-inner.edge.vertical { */
@@ -32,6 +39,7 @@
 #bar-inner.edge.bottom {
   border-width: 2px 0 0 0;
   border-radius: 0;
+  box-shadow: none;
 }
 
 #bar-inner.edge.vertical.right {

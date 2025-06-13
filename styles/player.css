@@ -131,7 +131,7 @@
 
 #player-switcher.stack-switcher button label {
   font-size: 16px;
-  color: var(--surface-bright);
+  color: var(--outline);
 }
 
 #player-switcher.stack-switcher button:hover label {

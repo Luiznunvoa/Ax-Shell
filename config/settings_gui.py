@@ -1,3 +1,17 @@
+from .settings_utils import backup_and_replace, bind_vars, start_config
+from .data import (APP_NAME, APP_NAME_CAP, NOTIF_POS_DEFAULT, NOTIF_POS_KEY,
+                   PANEL_POSITION_DEFAULT, PANEL_POSITION_KEY)
+from PIL import Image
+from gi.repository import GdkPixbuf, GLib, Gtk
+from fabric.widgets.window import Window
+from fabric.widgets.stack import Stack
+from fabric.widgets.scrolledwindow import ScrolledWindow
+from fabric.widgets.scale import Scale
+from fabric.widgets.label import Label
+from fabric.widgets.image import Image as FabricImage
+from fabric.widgets.entry import Entry
+from fabric.widgets.button import Button
+from fabric.widgets.box import Box
 import json
 import os
 import shutil
@@ -9,21 +23,6 @@ from pathlib import Path
 import gi
 
 gi.require_version('Gtk', '3.0')
-from fabric.widgets.box import Box
-from fabric.widgets.button import Button
-from fabric.widgets.entry import Entry
-from fabric.widgets.image import Image as FabricImage
-from fabric.widgets.label import Label
-from fabric.widgets.scale import Scale
-from fabric.widgets.scrolledwindow import ScrolledWindow
-from fabric.widgets.stack import Stack
-from fabric.widgets.window import Window
-from gi.repository import GdkPixbuf, GLib, Gtk
-from PIL import Image
-
-from .data import (APP_NAME, APP_NAME_CAP, NOTIF_POS_DEFAULT, NOTIF_POS_KEY,
-                   PANEL_POSITION_DEFAULT, PANEL_POSITION_KEY)
-from .settings_utils import backup_and_replace, bind_vars, start_config
 
 
 class HyprConfGUI(Window):
@@ -48,9 +47,9 @@ class HyprConfGUI(Window):
         root_box.add(main_content_box)
 
         self.tab_stack = Stack(
-             transition_type="slide-up-down",
-             transition_duration=250,
-             v_expand=True, h_expand=True
+            transition_type="slide-up-down",
+            transition_duration=250,
+            v_expand=True, h_expand=True
         )
 
         self.key_bindings_tab_content = self.create_key_bindings_tab()
@@ -80,7 +79,7 @@ class HyprConfGUI(Window):
 
     def create_key_bindings_tab(self):
         scrolled_window = ScrolledWindow(
-            h_scrollbar_policy="never", 
+            h_scrollbar_policy="never",
             v_scrollbar_policy="automatic",
             h_expand=True,
             v_expand=True,
@@ -98,7 +97,7 @@ class HyprConfGUI(Window):
         keybind_grid.set_margin_end(5)
         keybind_grid.set_margin_top(5)
         keybind_grid.set_margin_bottom(5)
-        
+
         action_label = Label(markup="<b>Action</b>", h_align="start", style="margin-bottom: 5px;")
         modifier_label = Label(markup="<b>Modifier</b>", h_align="start", style="margin-bottom: 5px;")
         separator_label = Label(label="+", h_align="center", style="margin-bottom: 5px;")
@@ -120,7 +119,7 @@ class HyprConfGUI(Window):
             ("App Launcher", 'prefix_launcher', 'suffix_launcher'),
             ("Tmux", 'prefix_tmux', 'suffix_tmux'),
             ("Clipboard History", 'prefix_cliphist', 'suffix_cliphist'),
-            ("Toolbox", 'prefix_toolbox', 'suffix_toolbox'),
+            # ("Toolbox", 'prefix_toolbox', 'suffix_toolbox'),
             ("Overview", 'prefix_overview', 'suffix_overview'),
             ("Wallpapers", 'prefix_wallpapers', 'suffix_wallpapers'),
             ("Random Wallpaper", 'prefix_randwall', 'suffix_randwall'),
@@ -148,7 +147,7 @@ class HyprConfGUI(Window):
 
     def create_appearance_tab(self):
         scrolled_window = ScrolledWindow(
-            h_scrollbar_policy="never", 
+            h_scrollbar_policy="never",
             v_scrollbar_policy="automatic",
             h_expand=True,
             v_expand=True,
@@ -169,7 +168,7 @@ class HyprConfGUI(Window):
         top_grid.attach(wall_header, 0, 0, 1, 1)
         wall_label = Label(label="Directory:", h_align="start", v_align="center")
         top_grid.attach(wall_label, 0, 1, 1, 1)
-        
+
         chooser_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         chooser_container.set_halign(Gtk.Align.START)
         chooser_container.set_valign(Gtk.Align.CENTER)
@@ -177,7 +176,7 @@ class HyprConfGUI(Window):
             title="Select a folder", action=Gtk.FileChooserAction.SELECT_FOLDER
         )
         self.wall_dir_chooser.set_tooltip_text("Select the directory containing your wallpaper images")
-        self.wall_dir_chooser.set_filename(bind_vars.get('wallpapers_dir',''))
+        self.wall_dir_chooser.set_filename(bind_vars.get('wallpapers_dir', ''))
         self.wall_dir_chooser.set_size_request(180, -1)
         chooser_container.add(self.wall_dir_chooser)
         top_grid.attach(chooser_container, 1, 1, 1, 1)
@@ -192,13 +191,13 @@ class HyprConfGUI(Window):
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(current_face, 64, 64)
                 self.face_image.set_from_pixbuf(pixbuf)
             else:
-                 self.face_image.set_from_icon_name("user-info", Gtk.IconSize.DIALOG) 
+                self.face_image.set_from_icon_name("user-info", Gtk.IconSize.DIALOG)
         except Exception as e:
             print(f"Error loading face icon: {e}")
             self.face_image.set_from_icon_name("image-missing", Gtk.IconSize.DIALOG)
         face_image_container.add(self.face_image)
         top_grid.attach(face_image_container, 2, 1, 1, 1)
-        
+
         browse_btn_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         browse_btn_container.set_halign(Gtk.Align.START)
         browse_btn_container.set_valign(Gtk.Align.CENTER)
@@ -228,7 +227,7 @@ class HyprConfGUI(Window):
         self.position_combo = Gtk.ComboBoxText()
         self.position_combo.set_tooltip_text("Select the position of the bar")
         positions = ["Top", "Bottom", "Left", "Right"]
-        for pos in positions: 
+        for pos in positions:
             self.position_combo.append_text(pos)
         current_position = bind_vars.get('bar_position', "Top")
         try:
@@ -242,7 +241,7 @@ class HyprConfGUI(Window):
         centered_label = Label(label="Centered Bar (Left/Right Only)", h_align="start", v_align="center")
         layout_grid.attach(centered_label, 2, 0, 1, 1)
         centered_switch_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
-        self.centered_switch = Gtk.Switch(active=bind_vars.get('centered_bar', False), 
+        self.centered_switch = Gtk.Switch(active=bind_vars.get('centered_bar', False),
                                           sensitive=bind_vars.get('bar_position', "Top") in ["Left", "Right"])
         centered_switch_container.add(self.centered_switch)
         layout_grid.attach(centered_switch_container, 3, 0, 1, 1)
@@ -261,7 +260,7 @@ class HyprConfGUI(Window):
         self.dock_hover_switch = Gtk.Switch(active=bind_vars.get('dock_always_occluded', False), sensitive=self.dock_switch.get_active())
         dock_hover_switch_container.add(self.dock_hover_switch)
         layout_grid.attach(dock_hover_switch_container, 3, 1, 1, 1)
-        
+
         dock_size_label = Label(label="Dock Icon Size", h_align="start", v_align="center")
         layout_grid.attach(dock_size_label, 0, 2, 1, 1)
         self.dock_size_scale = Scale(
@@ -291,7 +290,8 @@ class HyprConfGUI(Window):
         self.bar_theme_combo = Gtk.ComboBoxText()
         self.bar_theme_combo.set_tooltip_text("Select the visual theme for the bar")
         themes = ["Pills", "Dense", "Edge"]
-        for theme in themes: self.bar_theme_combo.append_text(theme)
+        for theme in themes:
+            self.bar_theme_combo.append_text(theme)
         current_theme = bind_vars.get('bar_theme', "Pills")
         try:
             self.bar_theme_combo.set_active(themes.index(current_theme))
@@ -301,16 +301,17 @@ class HyprConfGUI(Window):
         layout_grid.attach(bar_theme_combo_container, 1, 4, 3, 1)
 
         dock_theme_label = Label(label="Dock Theme", h_align="start", v_align="center")
-        layout_grid.attach(dock_theme_label, 0, 5, 1, 1) 
+        layout_grid.attach(dock_theme_label, 0, 5, 1, 1)
         dock_theme_combo_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
-        self.dock_theme_combo = Gtk.ComboBoxText() 
+        self.dock_theme_combo = Gtk.ComboBoxText()
         self.dock_theme_combo.set_tooltip_text("Select the visual theme for the dock")
-        for theme in themes: self.dock_theme_combo.append_text(theme)
-        current_dock_theme = bind_vars.get('dock_theme', "Pills") 
+        for theme in themes:
+            self.dock_theme_combo.append_text(theme)
+        current_dock_theme = bind_vars.get('dock_theme', "Pills")
         try:
             self.dock_theme_combo.set_active(themes.index(current_dock_theme))
         except ValueError:
-            self.dock_theme_combo.set_active(0) 
+            self.dock_theme_combo.set_active(0)
         dock_theme_combo_container.add(self.dock_theme_combo)
         layout_grid.attach(dock_theme_combo_container, 1, 5, 3, 1)
 
@@ -320,12 +321,13 @@ class HyprConfGUI(Window):
         self.panel_theme_combo = Gtk.ComboBoxText()
         self.panel_theme_combo.set_tooltip_text("Select the theme/mode for panels like toolbox, clipboard, etc.")
         panel_themes = ["Notch", "Panel"]
-        for theme in panel_themes: self.panel_theme_combo.append_text(theme)
-        current_panel_theme = bind_vars.get('panel_theme', "Notch") 
+        for theme in panel_themes:
+            self.panel_theme_combo.append_text(theme)
+        current_panel_theme = bind_vars.get('panel_theme', "Notch")
         try:
             self.panel_theme_combo.set_active(panel_themes.index(current_panel_theme))
         except ValueError:
-            self.panel_theme_combo.set_active(0) 
+            self.panel_theme_combo.set_active(0)
         panel_theme_combo_container.add(self.panel_theme_combo)
         layout_grid.attach(panel_theme_combo_container, 1, 6, 1, 1)
         self.panel_theme_combo.connect("changed", self._on_panel_theme_changed_for_position_sensitivity)
@@ -342,7 +344,7 @@ class HyprConfGUI(Window):
         self.panel_position_combo.set_tooltip_text("Select the position for the 'Panel' theme panels")
         for option in self.panel_position_options:
             self.panel_position_combo.append_text(option)
-        
+
         current_panel_position = bind_vars.get(PANEL_POSITION_KEY, PANEL_POSITION_DEFAULT)
         try:
             self.panel_position_combo.set_active(self.panel_position_options.index(current_panel_position))
@@ -350,7 +352,7 @@ class HyprConfGUI(Window):
             try:
                 self.panel_position_combo.set_active(self.panel_position_options.index(PANEL_POSITION_DEFAULT))
             except ValueError:
-                self.panel_position_combo.set_active(0) 
+                self.panel_position_combo.set_active(0)
 
         panel_position_combo_container.add(self.panel_position_combo)
         layout_grid.attach(panel_position_combo_container, 3, 6, 1, 1)
@@ -359,14 +361,14 @@ class HyprConfGUI(Window):
         layout_grid.attach(notification_pos_label, 0, 7, 1, 1)
 
         notification_pos_combo_container = Box(orientation=Gtk.Orientation.HORIZONTAL, halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
-        
+
         self.notification_pos_combo = Gtk.ComboBoxText()
         self.notification_pos_combo.set_tooltip_text("Select where notifications appear on the screen.")
-        
+
         notification_positions_list = ["Top", "Bottom"]
         for pos in notification_positions_list:
             self.notification_pos_combo.append_text(pos)
-        
+
         current_notif_pos = bind_vars.get(NOTIF_POS_KEY, NOTIF_POS_DEFAULT)
         try:
             self.notification_pos_combo.set_active(notification_positions_list.index(current_notif_pos))
@@ -374,7 +376,7 @@ class HyprConfGUI(Window):
             self.notification_pos_combo.set_active(0)
 
         self.notification_pos_combo.connect("changed", self.on_notification_position_changed)
-        
+
         notification_pos_combo_container.add(self.notification_pos_combo)
         layout_grid.attach(notification_pos_combo_container, 1, 7, 3, 1)
 
@@ -393,43 +395,43 @@ class HyprConfGUI(Window):
         self.component_switches = {}
         component_display_names = {
             'button_apps': "App Launcher Button", 'systray': "System Tray", 'control': "Control Panel",
-            'network': "Network Applet", 'button_tools': "Toolbox Button", 'button_overview': "Overview Button",
+            'network': "Network Applet", 'button_overview': "Overview Button",
             'ws_container': "Workspaces", 'weather': "Weather Widget", 'battery': "Battery Indicator",
-            'metrics': "System Metrics", 'language': "Language Indicator", 'date_time': "Date & Time",
+            'metrics': "System Metrics", 'date_time': "Date & Time",
             'button_power': "Power Button",
         }
 
         self.corners_switch = Gtk.Switch(active=bind_vars.get('corners_visible', True))
         num_components = len(component_display_names) + 1
         rows_per_column = (num_components + 1) // 2
-        
+
         corners_label = Label(label="Rounded Corners", h_align="start", v_align="center")
         components_grid.attach(corners_label, 0, 0, 1, 1)
         switch_container_corners = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
         switch_container_corners.add(self.corners_switch)
         components_grid.attach(switch_container_corners, 1, 0, 1, 1)
-        
+
         current_row = 0
         current_col = 0
         item_idx = 0
         for i, (name, display) in enumerate(component_display_names.items()):
-            if item_idx < (rows_per_column -1) : 
-                row = item_idx + 1 
+            if item_idx < (rows_per_column - 1):
+                row = item_idx + 1
                 col = 0
             else:
-                row = (item_idx - (rows_per_column -1))
+                row = (item_idx - (rows_per_column - 1))
                 col = 2
-            
+
             component_label = Label(label=display, h_align="start", v_align="center")
             components_grid.attach(component_label, col, row, 1, 1)
-            
+
             switch_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
             component_switch = Gtk.Switch(active=bind_vars.get(f'bar_{name}_visible', True))
             switch_container.add(component_switch)
             components_grid.attach(switch_container, col + 1, row, 1, 1)
             self.component_switches[name] = component_switch
-            item_idx +=1
-        
+            item_idx += 1
+
         self._update_panel_position_sensitivity()
         return scrolled_window
 
@@ -450,7 +452,7 @@ class HyprConfGUI(Window):
 
     def create_system_tab(self):
         scrolled_window = ScrolledWindow(
-            h_scrollbar_policy="never", 
+            h_scrollbar_policy="never",
             v_scrollbar_policy="automatic",
             h_expand=True,
             v_expand=True,
@@ -535,20 +537,23 @@ class HyprConfGUI(Window):
                 s.set_sensitive(True if can_disable or not s.get_active() else False)
 
         def on_metric_toggle(switch, gparam, switch_dict): enforce_minimum_metrics(switch_dict)
-        for k_s, s_s in self.metrics_switches.items(): s_s.connect("notify::active", on_metric_toggle, self.metrics_switches)
-        for k_s, s_s in self.metrics_small_switches.items(): s_s.connect("notify::active", on_metric_toggle, self.metrics_small_switches)
+        for k_s, s_s in self.metrics_switches.items():
+            s_s.connect("notify::active", on_metric_toggle, self.metrics_switches)
+        for k_s, s_s in self.metrics_small_switches.items():
+            s_s.connect("notify::active", on_metric_toggle, self.metrics_small_switches)
         enforce_minimum_metrics(self.metrics_switches)
         enforce_minimum_metrics(self.metrics_small_switches)
-        
+
         disks_label = Label(label="Disk directories for Metrics", h_align="start", v_align="center")
         vbox.add(disks_label)
         self.disk_entries = Box(orientation="v", spacing=8, h_align="start")
-        
+
         self._create_disk_edit_entry_func = lambda path: self._add_disk_entry_widget(path)
 
-        for p in bind_vars.get('bar_metrics_disks', ["/"]): self._create_disk_edit_entry_func(p)
+        for p in bind_vars.get('bar_metrics_disks', ["/"]):
+            self._create_disk_edit_entry_func(p)
         vbox.add(self.disk_entries)
-        
+
         add_container = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
         add_btn = Button(label="Add new disk", on_clicked=lambda _: self._create_disk_edit_entry_func("/"))
         add_container.add(add_btn)
@@ -567,7 +572,6 @@ class HyprConfGUI(Window):
         self.disk_entries.add(bar)
         self.disk_entries.show_all()
 
-
     def create_about_tab(self):
         vbox = Box(orientation="v", spacing=18, style="margin: 30px;")
         vbox.add(Label(markup=f"<b>{APP_NAME_CAP}</b>", h_align="start", style="font-size: 1.5em; margin-bottom: 8px;"))
@@ -575,7 +579,8 @@ class HyprConfGUI(Window):
         repo_box = Box(orientation="h", spacing=6, h_align="start")
         repo_label = Label(label="GitHub:", h_align="start")
         repo_link = Label(markup='<a href="https://github.com/Axenide/Ax-Shell">https://github.com/Axenide/Ax-Shell</a>')
-        repo_box.add(repo_label); repo_box.add(repo_link)
+        repo_box.add(repo_label)
+        repo_box.add(repo_link)
         vbox.add(repo_box)
         def on_kofi_clicked(_): import webbrowser; webbrowser.open("https://ko-fi.com/Axenide")
         kofi_btn = Button(label="Support on Ko-Fi ❤️", on_clicked=on_kofi_clicked, tooltip_text="Support Axenide on Ko-Fi", style="margin-top: 18px; min-width: 160px;")
@@ -586,7 +591,8 @@ class HyprConfGUI(Window):
     def on_ws_num_changed(self, switch, gparam):
         is_active = switch.get_active()
         self.ws_chinese_switch.set_sensitive(is_active)
-        if not is_active: self.ws_chinese_switch.set_active(False)
+        if not is_active:
+            self.ws_chinese_switch.set_active(False)
 
     def on_position_changed(self, combo):
         position = combo.get_active_text()
@@ -598,7 +604,8 @@ class HyprConfGUI(Window):
     def on_dock_enabled_changed(self, switch, gparam):
         is_active = switch.get_active()
         self.dock_hover_switch.set_sensitive(is_active)
-        if not is_active: self.dock_hover_switch.set_active(False)
+        if not is_active:
+            self.dock_hover_switch.set_active(False)
 
     def on_select_face_icon(self, widget):
         dialog = Gtk.FileChooserDialog(
@@ -607,8 +614,10 @@ class HyprConfGUI(Window):
         dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
         image_filter = Gtk.FileFilter()
         image_filter.set_name("Image files")
-        for mime in ["image/png", "image/jpeg"]: image_filter.add_mime_type(mime)
-        for pattern in ["*.png", "*.jpg", "*.jpeg"]: image_filter.add_pattern(pattern)
+        for mime in ["image/png", "image/jpeg"]:
+            image_filter.add_mime_type(mime)
+        for pattern in ["*.png", "*.jpg", "*.jpeg"]:
+            image_filter.add_pattern(pattern)
         dialog.add_filter(image_filter)
         if dialog.run() == Gtk.ResponseType.OK:
             self.selected_face_icon = dialog.get_filename()
@@ -617,22 +626,22 @@ class HyprConfGUI(Window):
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(self.selected_face_icon, 64, 64)
                 self.face_image.set_from_pixbuf(pixbuf)
             except Exception as e:
-                 print(f"Error loading selected face icon preview: {e}")
-                 self.face_image.set_from_icon_name("image-missing", Gtk.IconSize.DIALOG)
+                print(f"Error loading selected face icon preview: {e}")
+                self.face_image.set_from_icon_name("image-missing", Gtk.IconSize.DIALOG)
         dialog.destroy()
 
     def on_accept(self, widget):
-        
-        current_bind_vars_snapshot = {} 
+
+        current_bind_vars_snapshot = {}
         for prefix_key, suffix_key, prefix_entry, suffix_entry in self.entries:
             current_bind_vars_snapshot[prefix_key] = prefix_entry.get_text()
             current_bind_vars_snapshot[suffix_key] = suffix_entry.get_text()
 
         current_bind_vars_snapshot['wallpapers_dir'] = self.wall_dir_chooser.get_filename()
-        
+
         current_bind_vars_snapshot['bar_position'] = self.position_combo.get_active_text()
         current_bind_vars_snapshot['vertical'] = current_bind_vars_snapshot['bar_position'] in ["Left", "Right"]
-        
+
         current_bind_vars_snapshot['centered_bar'] = self.centered_switch.get_active()
         current_bind_vars_snapshot['dock_enabled'] = self.dock_switch.get_active()
         current_bind_vars_snapshot['dock_always_occluded'] = self.dock_hover_switch.get_active()
@@ -660,22 +669,20 @@ class HyprConfGUI(Window):
             child.get_children()[0].get_text() for child in self.disk_entries.get_children() if isinstance(child, Gtk.Box) and child.get_children() and isinstance(child.get_children()[0], Entry)
         ]
 
-
         selected_icon_path = self.selected_face_icon
         replace_lock = self.lock_switch and self.lock_switch.get_active()
         replace_idle = self.idle_switch and self.idle_switch.get_active()
 
         if self.selected_face_icon:
-             self.selected_face_icon = None
-             self.face_status_label.label = ""
+            self.selected_face_icon = None
+            self.face_status_label.label = ""
 
         def _apply_and_reload_task_thread():
-            nonlocal current_bind_vars_snapshot 
-            
+            nonlocal current_bind_vars_snapshot
+
             from . import settings_utils
             settings_utils.bind_vars.clear()
             settings_utils.bind_vars.update(current_bind_vars_snapshot)
-
 
             start_time = time.time()
             print(f"{start_time:.4f}: Background task started.")
@@ -684,37 +691,45 @@ class HyprConfGUI(Window):
             os.makedirs(os.path.dirname(config_json), exist_ok=True)
             try:
                 with open(config_json, 'w') as f:
-                    json.dump(settings_utils.bind_vars, f, indent=4) 
+                    json.dump(settings_utils.bind_vars, f, indent=4)
                 print(f"{time.time():.4f}: Saved config.json.")
-            except Exception as e: print(f"Error saving config.json: {e}")
+            except Exception as e:
+                print(f"Error saving config.json: {e}")
 
             if selected_icon_path:
                 print(f"{time.time():.4f}: Processing face icon...")
                 try:
                     img = Image.open(selected_icon_path)
-                    side = min(img.size); left = (img.width - side)//2; top = (img.height - side)//2
+                    side = min(img.size)
+                    left = (img.width - side) // 2
+                    top = (img.height - side) // 2
                     cropped_img = img.crop((left, top, left + side, top + side))
                     face_icon_dest = os.path.expanduser("~/.face.icon")
                     cropped_img.save(face_icon_dest, format='PNG')
                     print(f"{time.time():.4f}: Face icon saved to {face_icon_dest}")
                     GLib.idle_add(self._update_face_image_widget, face_icon_dest)
-                except Exception as e: print(f"Error processing face icon: {e}")
+                except Exception as e:
+                    print(f"Error processing face icon: {e}")
                 print(f"{time.time():.4f}: Finished processing face icon.")
 
             if replace_lock:
                 print(f"{time.time():.4f}: Replacing hyprlock config...")
                 src = os.path.expanduser(f"~/.config/{APP_NAME_CAP}/config/hypr/hyprlock.conf")
                 dest = os.path.expanduser("~/.config/hypr/hyprlock.conf")
-                if os.path.exists(src): backup_and_replace(src, dest, "Hyprlock")
-                else: print(f"Warning: Source hyprlock config not found at {src}")
+                if os.path.exists(src):
+                    backup_and_replace(src, dest, "Hyprlock")
+                else:
+                    print(f"Warning: Source hyprlock config not found at {src}")
                 print(f"{time.time():.4f}: Finished replacing hyprlock config.")
 
             if replace_idle:
                 print(f"{time.time():.4f}: Replacing hypridle config...")
                 src = os.path.expanduser(f"~/.config/{APP_NAME_CAP}/config/hypr/hypridle.conf")
                 dest = os.path.expanduser("~/.config/hypr/hypridle.conf")
-                if os.path.exists(src): backup_and_replace(src, dest, "Hypridle")
-                else: print(f"Warning: Source hypridle config not found at {src}")
+                if os.path.exists(src):
+                    backup_and_replace(src, dest, "Hypridle")
+                else:
+                    print(f"Warning: Source hypridle config not found at {src}")
                 print(f"{time.time():.4f}: Finished replacing hypridle config.")
 
             print(f"{time.time():.4f}: Checking/Appending hyprland.conf source string...")
@@ -724,17 +739,21 @@ class HyprConfGUI(Window):
                 needs_append = True
                 if os.path.exists(hypr_path):
                     with open(hypr_path, "r") as f:
-                        if SOURCE_STRING.strip() in f.read(): needs_append = False
-                else: os.makedirs(os.path.dirname(hypr_path), exist_ok=True)
-                
+                        if SOURCE_STRING.strip() in f.read():
+                            needs_append = False
+                else:
+                    os.makedirs(os.path.dirname(hypr_path), exist_ok=True)
+
                 if needs_append:
-                    with open(hypr_path, "a") as f: f.write("\n" + SOURCE_STRING)
+                    with open(hypr_path, "a") as f:
+                        f.write("\n" + SOURCE_STRING)
                     print(f"Appended source string to {hypr_path}")
-            except Exception as e: print(f"Error updating {hypr_path}: {e}")
+            except Exception as e:
+                print(f"Error updating {hypr_path}: {e}")
             print(f"{time.time():.4f}: Finished checking/appending hyprland.conf source string.")
 
             print(f"{time.time():.4f}: Running start_config()...")
-            start_config() 
+            start_config()
             print(f"{time.time():.4f}: Finished start_config().")
 
             print(f"{time.time():.4f}: Initiating Ax-Shell restart using Popen...")
@@ -745,15 +764,19 @@ class HyprConfGUI(Window):
                 kill_proc = subprocess.Popen(kill_cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 kill_proc.wait(timeout=2)
                 print(f"{time.time():.4f}: killall process finished (o timed out).")
-            except subprocess.TimeoutExpired: print("Warning: killall command timed out.")
-            except Exception as e: print(f"Error running killall: {e}")
-            
+            except subprocess.TimeoutExpired:
+                print("Warning: killall command timed out.")
+            except Exception as e:
+                print(f"Error running killall: {e}")
+
             try:
                 subprocess.Popen(start_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
                 print(f"{APP_NAME_CAP} restart initiated via Popen.")
-            except FileNotFoundError as e: print(f"Error restarting {APP_NAME_CAP}: Command not found ({e})")
-            except Exception as e: print(f"Error restarting {APP_NAME_CAP} via Popen: {e}")
-            
+            except FileNotFoundError as e:
+                print(f"Error restarting {APP_NAME_CAP}: Command not found ({e})")
+            except Exception as e:
+                print(f"Error restarting {APP_NAME_CAP} via Popen: {e}")
+
             print(f"{time.time():.4f}: Ax-Shell restart commands issued via Popen.")
             end_time = time.time()
             print(f"{end_time:.4f}: Background task finished (Total: {end_time - start_time:.4f}s).")
@@ -765,7 +788,7 @@ class HyprConfGUI(Window):
 
     def _update_face_image_widget(self, icon_path):
         try:
-            if self.face_image and self.face_image.get_window(): 
+            if self.face_image and self.face_image.get_window():
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(icon_path, 64, 64)
                 self.face_image.set_from_pixbuf(pixbuf)
         except Exception as e:
@@ -782,7 +805,7 @@ class HyprConfGUI(Window):
         dialog.format_secondary_text("This will reset all keybindings and appearance settings to their default values.")
         if dialog.run() == Gtk.ResponseType.YES:
             from . import settings_utils
-            from .settings_constants import DEFAULTS 
+            from .settings_constants import DEFAULTS
 
             settings_utils.bind_vars.clear()
             settings_utils.bind_vars.update(DEFAULTS.copy())
@@ -792,17 +815,17 @@ class HyprConfGUI(Window):
                 suffix_entry.set_text(settings_utils.bind_vars[suffix_key])
 
             self.wall_dir_chooser.set_filename(settings_utils.bind_vars['wallpapers_dir'])
-            
+
             positions = ["Top", "Bottom", "Left", "Right"]
             default_position = DEFAULTS.get('bar_position', "Top")
             try:
                 self.position_combo.set_active(positions.index(default_position))
             except ValueError:
                 self.position_combo.set_active(0)
-                
+
             self.centered_switch.set_active(settings_utils.bind_vars.get('centered_bar', False))
             self.centered_switch.set_sensitive(default_position in ["Left", "Right"])
-            
+
             self.dock_switch.set_active(settings_utils.bind_vars.get('dock_enabled', True))
             self.dock_hover_switch.set_active(settings_utils.bind_vars.get('dock_always_occluded', False))
             self.dock_hover_switch.set_sensitive(self.dock_switch.get_active())
@@ -811,13 +834,13 @@ class HyprConfGUI(Window):
             self.ws_num_switch.set_active(settings_utils.bind_vars.get('bar_workspace_show_number', False))
             self.ws_chinese_switch.set_active(settings_utils.bind_vars.get('bar_workspace_use_chinese_numerals', False))
             self.ws_chinese_switch.set_sensitive(self.ws_num_switch.get_active())
-            
-            default_theme_val = DEFAULTS.get('bar_theme', "Pills") 
+
+            default_theme_val = DEFAULTS.get('bar_theme', "Pills")
             themes = ["Pills", "Dense", "Edge"]
             try:
                 self.bar_theme_combo.set_active(themes.index(default_theme_val))
             except ValueError:
-                self.bar_theme_combo.set_active(0) 
+                self.bar_theme_combo.set_active(0)
 
             default_dock_theme_val = DEFAULTS.get('dock_theme', "Pills")
             try:
@@ -826,12 +849,12 @@ class HyprConfGUI(Window):
                 self.dock_theme_combo.set_active(0)
 
             default_panel_theme_val = DEFAULTS.get('panel_theme', "Notch")
-            panel_themes_options = ["Notch", "Panel"] 
+            panel_themes_options = ["Notch", "Panel"]
             try:
                 self.panel_theme_combo.set_active(panel_themes_options.index(default_panel_theme_val))
             except ValueError:
                 self.panel_theme_combo.set_active(0)
-            
+
             default_panel_position_val = DEFAULTS.get(PANEL_POSITION_KEY, PANEL_POSITION_DEFAULT)
             try:
                 self.panel_position_combo.set_active(self.panel_position_options.index(default_panel_position_val))
@@ -839,7 +862,7 @@ class HyprConfGUI(Window):
                 try:
                     self.panel_position_combo.set_active(self.panel_position_options.index(PANEL_POSITION_DEFAULT))
                 except ValueError:
-                    self.panel_position_combo.set_active(0) 
+                    self.panel_position_combo.set_active(0)
 
             default_notif_pos_val = DEFAULTS.get(NOTIF_POS_KEY, NOTIF_POS_DEFAULT)
             notification_positions_list = ["Top", "Bottom"]
@@ -849,15 +872,17 @@ class HyprConfGUI(Window):
                 self.notification_pos_combo.set_active(0)
 
             for name, switch in self.component_switches.items():
-                 switch.set_active(settings_utils.bind_vars.get(f'bar_{name}_visible', True))
+                switch.set_active(settings_utils.bind_vars.get(f'bar_{name}_visible', True))
             self.corners_switch.set_active(settings_utils.bind_vars.get('corners_visible', True))
 
             metrics_vis_defaults = DEFAULTS.get('metrics_visible', {})
-            for k, s_widget in self.metrics_switches.items(): s_widget.set_active(metrics_vis_defaults.get(k, True))
-            
+            for k, s_widget in self.metrics_switches.items():
+                s_widget.set_active(metrics_vis_defaults.get(k, True))
+
             metrics_small_vis_defaults = DEFAULTS.get('metrics_small_visible', {})
-            for k, s_widget in self.metrics_small_switches.items(): s_widget.set_active(metrics_small_vis_defaults.get(k, True))
-            
+            for k, s_widget in self.metrics_small_switches.items():
+                s_widget.set_active(metrics_small_vis_defaults.get(k, True))
+
             def enforce_minimum_metrics(switch_dict):
                 enabled_switches = [s_widget for s_widget in switch_dict.values() if s_widget.get_active()]
                 can_disable = len(enabled_switches) > 3
@@ -866,8 +891,9 @@ class HyprConfGUI(Window):
             enforce_minimum_metrics(self.metrics_switches)
             enforce_minimum_metrics(self.metrics_small_switches)
 
-            for child in list(self.disk_entries.get_children()): self.disk_entries.remove(child)
-            
+            for child in list(self.disk_entries.get_children()):
+                self.disk_entries.remove(child)
+
             for p in DEFAULTS.get('bar_metrics_disks', ["/"]):
                 self._add_disk_edit_entry_func(p)
 
@@ -875,18 +901,25 @@ class HyprConfGUI(Window):
 
             self.selected_face_icon = None
             self.face_status_label.label = ""
-            current_face = os.path.expanduser("~/.face.icon") 
+            current_face = os.path.expanduser("~/.face.icon")
             try:
-                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(current_face, 64, 64) if os.path.exists(current_face) else None
-                 if pixbuf: self.face_image.set_from_pixbuf(pixbuf)
-                 else: self.face_image.set_from_icon_name("user-info", Gtk.IconSize.DIALOG)
-            except Exception: self.face_image.set_from_icon_name("image-missing", Gtk.IconSize.DIALOG)
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(current_face, 64, 64) if os.path.exists(current_face) else None
+                if pixbuf:
+                    self.face_image.set_from_pixbuf(pixbuf)
+                else:
+                    self.face_image.set_from_icon_name("user-info", Gtk.IconSize.DIALOG)
+            except Exception:
+                self.face_image.set_from_icon_name("image-missing", Gtk.IconSize.DIALOG)
 
-            if self.lock_switch: self.lock_switch.set_active(False)
-            if self.idle_switch: self.idle_switch.set_active(False)
+            if self.lock_switch:
+                self.lock_switch.set_active(False)
+            if self.idle_switch:
+                self.idle_switch.set_active(False)
             print("Settings reset to defaults.")
         dialog.destroy()
 
     def on_close(self, widget):
-        if self.application: self.application.quit()
-        else: self.destroy()
+        if self.application:
+            self.application.quit()
+        else:
+            self.destroy()
